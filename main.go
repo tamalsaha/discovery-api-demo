@@ -1,9 +1,11 @@
 package main
 
 import (
+	"context"
 	"fmt"
 	core "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"k8s.io/apimachinery/pkg/runtime/schema"
 	"k8s.io/client-go/discovery/cached/memory"
 	"k8s.io/client-go/kubernetes"
 	"k8s.io/client-go/rest"
@@ -38,6 +40,7 @@ func useGeneratedClient() error {
 	rest.SetDefaultWarningHandler(rest.NoWarnings{})
 
 	mapper := restmapper.NewDeferredDiscoveryRESTMapper(memory.NewMemCacheClient(kc.Discovery()))
+	mapper.RESTMapping(schema.GroupKind{})
 
 	var pglist *core.NodeList
 	pglist, err = kc.CoreV1().Nodes().List(context.TODO(), metav1.ListOptions{})
