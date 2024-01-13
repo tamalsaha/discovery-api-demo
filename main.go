@@ -1,10 +1,9 @@
 package main
 
 import (
-	"context"
 	"fmt"
-	core "k8s.io/api/core/v1"
-	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"time"
+
 	"k8s.io/apimachinery/pkg/runtime/schema"
 	"k8s.io/client-go/discovery/cached/memory"
 	"k8s.io/client-go/kubernetes"
@@ -12,8 +11,6 @@ import (
 	"k8s.io/client-go/restmapper"
 	"k8s.io/klog/v2/klogr"
 	ctrl "sigs.k8s.io/controller-runtime"
-	"sigs.k8s.io/controller-runtime/pkg/client"
-	"time"
 )
 
 // /Users/tamal/go/src/github.com/tamalsaha/secret-projects/ocm/multicluster-controlplane.kubeconfig
@@ -39,16 +36,15 @@ func useGeneratedClient() error {
 
 	rest.SetDefaultWarningHandler(rest.NoWarnings{})
 
-	mapper := restmapper.NewDeferredDiscoveryRESTMapper(memory.NewMemCacheClient(kc.Discovery()))
-	mapper.RESTMapping(schema.GroupKind{})
-
-	var pglist *core.NodeList
-	pglist, err = kc.CoreV1().Nodes().List(context.TODO(), metav1.ListOptions{})
+	mapper := restmapper.NewDeferredDiscoveryRESTMapper(memory.NewMemCacheClient(kc.Discovery().WithLegacy()))
+	mapping, err := mapper.RESTMapping(schema.GroupKind{
+		Group: "certificates.k8s.io",
+		Kind:  "CertificateSigningRequest",
+	})
 	if err != nil {
 		return err
 	}
-	for _, db := range pglist.Items {
-		fmt.Println(client.ObjectKeyFromObject(&db))
-	}
+
+	fmt.Println(mapping.GroupVersionKind)
 	return nil
 }
