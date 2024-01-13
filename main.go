@@ -36,7 +36,7 @@ func useGeneratedClient() error {
 
 	rest.SetDefaultWarningHandler(rest.NoWarnings{})
 
-	mapper := restmapper.NewDeferredDiscoveryRESTMapper(memory.NewMemCacheClient(kc.Discovery().WithLegacy()))
+	mapper := restmapper.NewDeferredDiscoveryRESTMapper(memory.NewMemCacheClient(kc.Discovery()))
 	mapping, err := mapper.RESTMapping(schema.GroupKind{
 		Group: "certificates.k8s.io",
 		Kind:  "CertificateSigningRequest",
